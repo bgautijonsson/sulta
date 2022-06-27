@@ -1,0 +1,41 @@
+---
+title: "Sulta"
+format: html
+---
+
+
+```{r}
+library(tidyverse)
+library(gganimate)
+library(cowplot)
+library(ggthemes)
+
+d <- read_csv("sulta.csv") |> 
+    mutate(id = row_number())
+
+
+p <- d |> 
+    group_by(sulta) |> 
+    mutate(fjoldi = row_number()) |> 
+    ungroup() |> 
+    mutate(sulta = str_to_title(sulta)) |> 
+    ggplot(aes(sulta, fjoldi)) +
+    geom_col() +
+    theme_half_open() +
+    coord_cartesian(expand = FALSE) +
+    labs(title = "Sulta yfir/undir",
+         subtitle = "Svar nr: {frame_along}",
+         x = NULL,
+         y = "Fjöldi") +
+    transition_reveal(id) +
+    ease_aes("cubic-in-out")
+
+
+
+p_vid <- animate(p, width = 8, height = 0.5 * 8, unit = "in", res = 150, fps = 25, duration = 10,
+                 renderer = gifski_renderer(loop = FALSE))
+
+anim_save(filename = "sulta.gif", animation = p_vid)
+
+```
+
